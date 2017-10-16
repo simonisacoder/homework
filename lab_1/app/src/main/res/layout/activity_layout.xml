@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.simon.lab_1.layout">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorAccent"
+        android:textSize="20sp"
+        android:text="中山大学信息系统"
+
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="20dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:id="@+id/textView" />
+    <ImageView
+        android:layout_width="168dp"
+        android:layout_height="121dp"
+        android:src="@mipmap/sysu"
+
+
+
+        app:layout_constraintTop_toBottomOf="@id/textView"
+        android:layout_marginTop="20dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:id="@+id/image"
+        />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="18sp"
+        android:inputType="number"
+        android:hint="请输入学号"
+        android:textColorHighlight="#FF00FF"
+
+        android:ems="14"
+        app:layout_constraintTop_toBottomOf="@id/image"
+        android:layout_marginTop="20dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginRight="20dp"
+        android:id="@+id/text1"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="学号:"
+        android:textSize="18sp"
+        android:textColor="@color/colorAccent"
+
+        app:layout_constraintTop_toTopOf="@id/text1"
+        app:layout_constraintBottom_toBottomOf="@id/text1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="20dp"
+        android:id="@+id/xuehao"
+        />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="18sp"
+        android:inputType="textPassword"
+        android:ems="14"
+        android:hint="请输入密码"
+        android:textColorHighlight="#FF00FF"
+
+        app:layout_constraintTop_toBottomOf="@id/text1"
+        android:layout_marginTop="20dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginRight="20dp"
+        android:id="@+id/text2"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="密码:"
+        android:textSize="18sp"
+        android:textColor="@color/colorAccent"
+
+        app:layout_constraintTop_toTopOf="@id/text2"
+        app:layout_constraintBottom_toBottomOf="@id/text2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginLeft="20dp"
+        android:id="@+id/mima"
+        />
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/mima"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:id="@+id/option">
+        <RadioButton
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColorHighlight="#FF00FF"
+            android:text="职工"
+            android:id="@+id/zhigong"/>
+        <RadioButton
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textColorHighlight="#FF00FF"
+            android:text="学生"
+            android:id="@+id/xuesheng"/>
+    </RadioGroup>
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/option"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal"
+
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        >
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="登录"
+            android:layout_marginRight="10dp"
+            android:id="@+id/button1"
+            android:background="@drawable/shape"
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="注册"
+            android:id="@+id/button2"
+            android:background="@drawable/shape"
+            />
+    </RadioGroup>
+</android.support.constraint.ConstraintLayout>
