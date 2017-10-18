@@ -146,7 +146,11 @@ def cal_tf_idf(data,words,row,tf):
 #euclidean distance to classify
 def classify0(inX,dataSet,labels,k,row):
     dataSetSize = row
-    diffMat = tile(inX,(dataSetSize,1)) - dataSet
+    inX = array(inX)
+    dataSet = array(dataSet)
+    test_data = tile(inX,(dataSetSize,1))
+    diffMat = test_datas - dataSet
+
     sqDiffMat = diffMat ** 2
     sqDistances = sqDiffMat.sum(axis=1)
     distances = sqDistances ** 0.5
@@ -201,7 +205,7 @@ def classify(data_list,word_list,row,col,label):
 
     result = []
     for i in range(len(test_data)):
-        result.append(classify0(data_list,word_list,row,col,tf[i]))
+        result.append(classify0(tf_idf(i),word_list,row,col,tf[i]))
     return result
 
 
