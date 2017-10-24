@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+
+from numpy import *
+
+def substract_data(f_name):
+    f = open(f_name,'r')
+    m = f.readlines()
+    return m
+
+m = substract_data('/media/simon/Study/3-up/AI/lab3_PLA/lab3(PLA)/lab3/train.csv')
+print(m)
