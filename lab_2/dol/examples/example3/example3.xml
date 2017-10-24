@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processnetwork xmlns="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK
+http://www.tik.ee.ethz.ch/~shapes/schema/processnetwork.xsd" name="example3">
+
+  <variable value="3" name="N"/>
+  <variable value="10" name="FIFO_SIZE"/>
+
+  <!-- instantiate resources -->
+  <iterator variable="i" range="N">
+    <process name="horizontal_generator">
+      <append function="i"/> 
+      <port type="output" name="h_out"/>
+      <source type="c" location="horizontal_generator.c"/>
+    </process>
+     <process name="horizontal_consumer">
+      <append function="i"/> 
+      <port type="input" name="h_in"/>
+      <source type="c" location="horizontal_consumer.c"/>
+    </process>
+  </iterator>
+
+  <iterator variable="i" range="N">
+    <process name="vertical_generator">
+      <append function="i"/>
+      <port type="output" name="v_out"/>
+      <source type="c" location="vertical_generator.c"/>
+    </process>
+     <process name="vertical_consumer">
+      <append function="i"/>
+      <port type="input" name="v_in"/>
+      <source type="c" location="vertical_consumer.c"/>
+    </process>
+  </iterator>
+  
+  <iterator variable="i" range="N">
+    <iterator variable="j" range="N">
+      <process name="forward">
+        <append function="i"/>
+        <append function="j"/>
+        <port type="input" name="west"/>
+        <port type="input" name="north"/>
+        <port type="output" name="east"/>
+        <port type="output" name="south"/>
+        <source type="c" location="forward.c"/>
+      </process>
+    </iterator>
+  </iterator>
+  
+  <iterator variable="i" range="N + 1">
+    <iterator variable="j" range="N">
+      <sw_channel type="fifo" size="FIFO_SIZE" name="C_h">
+        <append function="i"/>
+        <append function="j"/>
+        <port type="input" name="in"/>
+        <port type="output" name="out"/>
+      </sw_channel>
+      <sw_channel type="fifo" size="FIFO_SIZE" name="C_v">
+        <append function="j"/>
+        <append function="i"/>
+        <port type="input" name="in"/>
+        <port type="output" name="out"/>
+      </sw_channel>
+    </iterator>
+  </iterator>
+
+  <!-- instantiate connections -->
+  <iterator variable="i" range="N">
+    <iterator variable="j" range="N">
+      <connection name="west">
+        <append function="i"/>
+        <append function="j"/>
+        <origin name="C_h">
+          <append function="i"/>
+          <append function="j"/>
+          <port name="out"/>
+        </origin>
+        <target name="forward">
+           <append function="i"/>
+           <append function="j"/>
+           <port name="west"/>
+         </target>
+      </connection>
+      
+      <connection name="east">
+        <append function="i"/>
+        <append function="j"/>
+        <origin name="forward">
+          <append function="i"/>
+          <append function="j"/>
+          <port name="east"/>
+        </origin>
+        <target name="C_h">
+           <append function="i + 1"/>
+           <append function="j"/>
+           <port name="in"/>
+         </target>
+      </connection>
+            
+      <connection name="north">
+        <append function="i"/>
+        <append function="j"/>
+        <origin name="C_v">
+          <append function="i"/>
+          <append function="j"/>
+          <port name="out"/>
+        </origin>
+        <target name="forward">
+           <append function="i"/>
+           <append function="j"/>
+           <port name="north"/>
+         </target>
+      </connection>
+      
+      <connection name="south">
+        <append function="i"/>
+        <append function="j"/>
+        <origin name="forward">
+          <append function="i"/>
+          <append function="j"/>
+          <port name="south"/>
+        </origin>
+        <target name="C_v">
+           <append function="i"/>
+           <append function="j + 1"/>
+           <port name="in"/>
+         </target>
+      </connection>
+    </iterator>
+  </iterator>
+  
+  <!-- boundary connections -->
+  <iterator variable="i" range="N">
+    <connection name="west">
+      <append function="i + 1"/>
+      <origin name="horizontal_generator">
+        <append function="i"/>
+        <port name="h_out"/>
+      </origin>
+      <target name="C_h">
+         <append function="0"/>
+         <append function="i"/>
+         <port name="in"/>
+       </target>
+    </connection>
+
+    <connection name="east">
+      <append function="i + 1"/>
+      <origin name="C_h">
+         <append function="N"/>
+         <append function="i"/>
+         <port name="out"/>
+      </origin>
+      <target name="horizontal_consumer">
+         <append function="i"/>
+         <port name="h_in"/>
+       </target>
+    </connection>
+
+    <connection name="north">
+      <append function="i + 1"/>
+      <origin name="vertical_generator">
+        <append function="i"/>
+        <port name="v_out"/>
+      </origin>
+      <target name="C_v">
+         <append function="i"/>
+         <append function="0"/>
+         <port name="in"/>
+       </target>
+    </connection>
+
+    <connection name="south">
+      <append function="i + 1"/>
+      <origin name="C_v">
+         <append function="i"/>
+         <append function="N"/>
+         <port name="out"/>
+      </origin>
+      <target name="vertical_consumer">
+         <append function="i"/>
+         <port name="v_in"/>
+       </target>
+    </connection>
+  </iterator>
+
+</processnetwork>

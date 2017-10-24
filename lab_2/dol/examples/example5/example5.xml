@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processnetwork xmlns="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK
+http://www.tik.ee.ethz.ch/~shapes/schema/processnetwork.xsd" name="FFT">
+
+  <!--
+  N is the number of FFT points
+  number_of_layers = ld(N)
+  processes_per_layer = N/2
+  -->
+  
+  <!--
+  <variable value="4" name="N"/> 
+  <variable value="2" name="NUMBER_OF_LAYERS"/>
+  <variable value="2" name="PROCESSES_PER_LAYER"/>
+  -->
+
+  <!--
+  <variable value="8" name="N"/>
+  <variable value="3" name="NUMBER_OF_LAYERS"/>
+  <variable value="4" name="PROCESSES_PER_LAYER"/>
+  -->
+
+  <variable value="16" name="N"/>
+  <variable value="4" name="NUMBER_OF_LAYERS"/>
+  <variable value="8" name="PROCESSES_PER_LAYER"/>
+  
+  <!--
+  <variable value="32" name="N"/>
+  <variable value="5" name="NUMBER_OF_LAYERS"/>
+  <variable value="16" name="PROCESSES_PER_LAYER"/>
+  -->
+  
+  <!--
+  <variable value="64" name="N"/>
+  <variable value="6" name="NUMBER_OF_LAYERS"/>
+  <variable value="32" name="PROCESSES_PER_LAYER"/>
+  -->
+
+  <!--  
+  <variable value="128" name="N"/>
+  <variable value="7" name="NUMBER_OF_LAYERS"/>
+  <variable value="64" name="PROCESSES_PER_LAYER"/>
+  -->
+
+  <!--
+  <variable value="256" name="N"/>
+  <variable value="8" name="NUMBER_OF_LAYERS"/>
+  <variable value="128" name="PROCESSES_PER_LAYER"/>
+  -->  
+
+  <function>
+    <![CDATA[
+    public static int bitreverse(int n, int N)
+    {
+      String numberString = Integer.toString(n, 2); //binary representation of n
+  
+      //prepend zeros until string is N characters long
+      while (numberString.length() < N)
+      {
+        numberString = "0" + numberString;
+      }
+  
+      //reverse the string
+      char[] numberCharArray = numberString.toCharArray();
+      for (int count = 0; count < numberCharArray.length / 2; count++)
+      {
+        char help = numberCharArray[count];
+        numberCharArray[count] = numberCharArray[N - 1 - count];
+        numberCharArray[N - 1 - count] = help;
+      }
+  
+      //convert back to integer
+      return Integer.valueOf(String.valueOf(numberCharArray), 2);
+    }
+    ]]>
+  </function>
+  
+  <function>
+    <![CDATA[
+    public static int butterfly(int layer, int p, int addOffset)
+    {
+      int index = 2 * (p % (1 << (layer - 1))) +
+                  p / (1 << (layer - 1)) +
+                  (p / (1 << layer)) * ((1 << (layer + 1)) - 2);
+
+      if (addOffset == 1)
+        return index + (1 << layer);
+
+      return index;
+    }
+    ]]>
+  </function>
+  
+  <!-- instantiate processes -->
+  <process name="generator">
+    <iterator  variable="i" range="N">
+      <port type="output" name="input_coefficients">
+        <append function="i"/>
+      </port>
+    </iterator>
+    <source type="c" location="generator.c"/>
+  </process>
+
+  <process name="consumer">
+    <iterator  variable="i" range="N">
+      <port type="input" name="output_coefficients">
+        <append function="i"/>
+      </port>
+    </iterator>
+    <source type="c" location="consumer.c"/>
+  </process>
+
+  <iterator variable="i" range="NUMBER_OF_LAYERS">
+    <iterator variable="j" range="PROCESSES_PER_LAYER">
+      <process name="fft2">
+        <append function="i"/>
+        <append function="j"/>
+        <port type="input" name="inA"/>
+        <port type="input" name="inB"/>
+        <port type="output" name="outA"/>
+        <port type="output" name="outB"/>
+        <source type="c" location="fft2.c"/>
+      </process>
+    </iterator>
+  </iterator>
+
+  <!-- instantiate channels -->
+  <!-- channels for input and output coefficients -->
+  <iterator variable="i" range="N">
+    <sw_channel type="fifo" size="16" name="inputchannel">
+      <append function="i"/>
+      <port type="input" name="in"/>
+      <port type="output" name="out"/>
+    </sw_channel>
+    <sw_channel type="fifo" size="16" name="outputchannel">
+      <append function="i"/>
+      <port type="input" name="in"/>
+      <port type="output" name="out"/>
+    </sw_channel>
+  </iterator>
+  
+  <!-- channels for butterfly network -->
+  <iterator variable="layer" range="NUMBER_OF_LAYERS - 1">
+    <iterator variable="i" range="N">
+      <sw_channel type="fifo" size="16" name="butterflychannel">
+        <append function="layer"/>
+        <append function="i"/>
+        <port type="input" name="in"/>
+        <port type="output" name="out"/>
+      </sw_channel>
+    </iterator>
+  </iterator>
+
+  <!-- instantiate connections -->
+  <!-- connections from input generator to input channel and from output channel to output consumer -->
+  <iterator variable="i" range="N">
+    <connection name="input_connection">
+      <append function="i"/>
+      <origin name="generator">
+        <port name="input_coefficients">
+          <append function="i"/>
+        </port>
+      </origin>
+      <target name="inputchannel">
+        <append function="i"/>
+        <port name="in"/>
+      </target>
+    </connection>
+    <connection name="output_connection">
+      <append function="i"/>
+      <origin name="outputchannel">
+        <append function="i"/>
+        <port name="out"/>
+      </origin>
+      <target name="consumer">
+        <port name="output_coefficients">
+          <append function="i"/>
+        </port>
+      </target>
+    </connection>
+  </iterator>
+  
+  <!-- connections from FFT2 to channels -->
+  <iterator variable="layer" range="NUMBER_OF_LAYERS - 1">
+    <iterator variable="i" range="PROCESSES_PER_LAYER">
+      <connection name="layerkconnection_A">
+        <append function="layer + 1"/>
+        <append function="i"/>
+        <origin name="fft2">
+          <append function="layer"/>
+          <append function="i"/>
+          <port name="outA"/>
+        </origin>
+        <target name="butterflychannel">
+          <append function="layer"/>
+          <append function="2 * i"/>
+          <port name="in"/>
+        </target>
+      </connection>
+      <connection name="layerkconnection_B">
+        <append function="layer + 1"/>
+        <append function="i"/>
+        <origin name="fft2">
+          <append function="layer"/>
+          <append function="i"/>
+          <port name="outB"/>
+        </origin>
+        <target name="butterflychannel">
+          <append function="layer"/>
+          <append function="2 * i + 1"/>
+          <port name="in"/>
+        </target>
+      </connection>
+    </iterator>
+  </iterator>
+  
+  <!-- connections from channels to FFT2 -->
+  <!-- connections from input channels to first FFT layer -->
+  <iterator variable="i" range="PROCESSES_PER_LAYER">
+    <connection name="layer1connection_A">
+      <append function="i"/>
+      <origin name="inputchannel">
+        <append function="bitreverse(2 * i, NUMBER_OF_LAYERS)"/>
+        <port name="out"/>
+      </origin>
+      <target name="fft2_0">
+        <append function="i"/>
+        <port name="inA"/>
+      </target>
+    </connection>
+    <connection name="layer1connection_B">
+      <append function="i"/>
+      <origin name="inputchannel">
+        <append function="bitreverse(2 * i + 1, NUMBER_OF_LAYERS)"/>
+        <port name="out"/>
+      </origin>
+      <target name="fft2_0">
+        <append function="i"/>
+        <port name="inB"/>
+      </target>
+    </connection>
+  </iterator>
+
+  <!-- connections from last FFT layer to output channels -->
+  <iterator variable="i" range="PROCESSES_PER_LAYER">
+    <connection name="lastlayerconnection_A">
+      <append function="i"/>
+      <origin name="fft2">
+        <append function="NUMBER_OF_LAYERS - 1"/>
+        <append function="i"/>
+        <port name="outA"/>
+      </origin>
+      <target name="outputchannel">
+        <append function="i"/>
+        <port name="in"/>
+      </target>
+    </connection>
+    <connection name="lastlayerconnection_B">
+      <append function="i"/>
+      <origin name="fft2">
+        <append function="NUMBER_OF_LAYERS - 1"/>
+        <append function="i"/>
+        <port name="outB"/>
+      </origin>
+      <target name="outputchannel">
+        <append function="i + PROCESSES_PER_LAYER"/>
+        <port name="in"/>
+      </target>
+    </connection>
+  </iterator>
+
+  <!-- other connections -->
+  <iterator variable="layer" range="NUMBER_OF_LAYERS - 1">
+    <iterator variable="i" range="PROCESSES_PER_LAYER">
+      <connection name="FFTconnection_A">
+        <append function="layer"/>
+        <append function="i"/>
+        <origin name="butterflychannel">
+          <append function="layer"/>
+          <append function="butterfly(layer + 1, i, 0)"/>
+          <port name="out"/>
+        </origin>
+        <target name="fft2">
+          <append function="layer + 1"/>
+          <append function="i"/>
+          <port name="inA"/>
+        </target>
+      </connection>
+      <connection name="FFTconnection_B">
+        <append function="layer"/>
+        <append function="i"/>
+        <origin name="butterflychannel">
+          <append function="layer"/>
+          <append function="butterfly(layer + 1, i, 1)"/>
+          <port name="out"/>
+        </origin>
+        <target name="fft2">
+          <append function="layer + 1"/>
+          <append function="i"/>
+          <port name="inB"/>
+        </target>
+      </connection>
+    </iterator>
+  </iterator>
+</processnetwork>

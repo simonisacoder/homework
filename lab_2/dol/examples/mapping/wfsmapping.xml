@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping xmlns="http://www.tik.ee.ethz.ch/~shapes/schema/MAPPING" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.tik.ee.ethz.ch/~shapes/schema/MAPPING
+http://www.tik.ee.ethz.ch/~shapes/schema/mapping.xsd" name="WFSonVSP"> 
+
+  <!-- process bindings -->
+  <binding name="binding_src_0" xsi:type="computation">
+    <process name="src_0"/>
+    <processor name="ARM"/>
+  </binding>
+
+  <binding name="binding_src_1" xsi:type="computation">
+    <process name="src_1"/>
+    <processor name="ARM"/>
+  </binding>
+
+  <binding name="binding_control" xsi:type="computation">
+    <process name="control"/>
+    <processor name="ARM"/>
+  </binding>
+
+  <binding name="binding_conv_0_0" xsi:type="computation">
+    <process name="convolver_wrapper_0_0"/>
+    <processor name="MAGIC"/>
+  </binding>
+
+  <binding name="binding_conv_0_1" xsi:type="computation">
+    <process name="convolver_wrapper_0_1"/>
+    <processor name="MAGIC"/>
+  </binding>
+
+  <binding name="binding_conv_1_0" xsi:type="computation">
+    <process name="convolver_wrapper_1_0"/>
+    <processor name="MAGIC"/>
+  </binding>
+
+  <binding name="binding_conv_1_1" xsi:type="computation">
+    <process name="convolver_wrapper_1_1"/>
+    <processor name="MAGIC"/>
+  </binding>
+
+  <binding name="binding_sum_0" xsi:type="computation">
+    <process name="sum_0"/>
+    <processor name="MAGIC"/>
+  </binding>
+
+  <binding name="binding_sum_1" xsi:type="computation">
+    <process name="sum_1"/>
+    <processor name="MAGIC"/>
+  </binding>
+
+  <binding name="binding_ls_0" xsi:type="computation">
+    <process name="ls_0"/>
+    <processor name="MAGIC"/>
+  </binding>
+
+  <binding name="binding_ls_1" xsi:type="computation">
+    <process name="ls_1"/>
+    <processor name="MAGIC"/>
+  </binding>
+
+  <!-- channel bindings -->
+  <binding name="binding_src_conv_0_0" xsi:type="communication">
+    <sw_channel name="fifo_src_conv_0_0"/>
+    <writepath name="ddmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <binding name="binding_src_conv_0_1" xsi:type="communication">
+    <sw_channel name="fifo_src_conv_0_1"/>
+    <writepath name="ddmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <binding name="binding_src_conv_1_0" xsi:type="communication">
+    <sw_channel name="fifo_src_conv_1_0"/>
+    <writepath name="ddmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <binding name="binding_src_conv_1_1" xsi:type="communication">
+    <sw_channel name="fifo_src_conv_1_1"/>
+    <writepath name="ddmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <binding name="binding_ctrl_conv_0_0" xsi:type="communication">
+    <sw_channel name="fifo_ctrl_conv_0_0"/>
+    <writepath name="armrdmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <binding name="binding_ctrl_conv_0_1" xsi:type="communication">
+    <sw_channel name="fifo_ctrl_conv_0_1"/>
+    <writepath name="armrdmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <binding name="binding_ctrl_conv_1_0" xsi:type="communication">
+    <sw_channel name="fifo_ctrl_conv_1_0"/>
+    <writepath name="armrdmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <binding name="binding_ctrl_conv_1_1" xsi:type="communication">
+    <sw_channel name="fifo_ctrl_conv_1_1"/>
+    <writepath name="armrdmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <binding name="binding_conv_sum_0_0" xsi:type="communication">
+    <sw_channel name="fifo_conv_sum_0_0"/>
+    <writepath name="ddmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <binding name="binding_conv_sum_0_1" xsi:type="communication">
+    <sw_channel name="fifo_conv_sum_0_1"/>
+    <writepath name="ddmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <binding name="binding_conv_sum_1_0" xsi:type="communication">
+    <sw_channel name="fifo_conv_sum_1_0"/>
+    <writepath name="ddmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <binding name="binding_conv_sum_1_1" xsi:type="communication">
+    <sw_channel name="fifo_conv_sum_1_1"/>
+    <writepath name="ddmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <binding name="binding_sum_ls_0" xsi:type="communication">
+    <sw_channel name="fifo_sum_ls_0"/>
+    <writepath name="ddmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <binding name="binding_sum_ls_1" xsi:type="communication">
+    <sw_channel name="fifo_sum_ls_1"/>
+    <writepath name="ddmddm"/>
+    <readpath name="ddmddm"/>
+  </binding>
+
+  <!-- schedules -->
+  <schedule name="armschedule" type="static">
+    <resource name="ARM"/>
+    <origin name="control">
+      <configuration name="priority" value="1"/>
+    </origin>
+  </schedule>
+
+  <schedule name="magicschedule" type="static">
+    <resource name="MAGIC"/>
+    <origin name="src_0">
+      <configuration name="priority" value="0"/>
+    </origin>
+    <origin name="src_1">
+      <configuration name="priority" value="1"/>
+    </origin>
+    <origin name="convolver_wrapper_0_0">
+      <configuration name="priority" value="2"/>
+    </origin>
+    <origin name="convolver_wrapper_0_1">
+      <configuration name="priority" value="3"/>
+    </origin>
+    <origin name="convolver_wrapper_1_0">
+      <configuration name="priority" value="4"/>
+    </origin>
+    <origin name="convolver_wrapper_1_1">
+      <configuration name="priority" value="5"/>
+    </origin>
+    <origin name="sum_0">
+      <configuration name="priority" value="6"/>
+    </origin>
+    <origin name="sum_1">
+      <configuration name="priority" value="7"/>
+    </origin>
+    <origin name="ls_0">
+      <configuration name="priority" value="8"/>
+    </origin>
+    <origin name="ls_1">
+      <configuration name="priority" value="9"/>
+    </origin>
+  </schedule>
+  
+  <schedule name="ahb0schedule" type="fifo">
+    <resource name="ahb0"/>
+  </schedule>
+
+  <schedule name="dmaschedule" type="fifo">
+    <resource name="dma"/>
+  </schedule>
+
+  <schedule name="magicbusschedule" type="fifo">
+    <resource name="magicbus"/>
+  </schedule>
+</mapping>

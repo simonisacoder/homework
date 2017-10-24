@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<architecture xmlns="http://www.tik.ee.ethz.ch/~shapes/schema/ARCHITECTURE"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.tik.ee.ethz.ch/~shapes/schema/ARCHITECTURE
+                      http://www.tik.ee.ethz.ch/~shapes/schema/architecture.xsd"
+  name="Sony/Toshiba/IBM Cell Broadband Engine architecture">
+
+  <processor name="ppu" type="RISC">
+  </processor>
+  
+  <processor name="spu_0" type="DSP">
+  </processor>
+
+  <processor name="spu_1" type="DSP">
+  </processor>
+  
+  <processor name="spu_2" type="DSP">
+  </processor>
+  
+  <processor name="spu_3" type="DSP">
+  </processor>
+  
+  <processor name="spu_4" type="DSP">
+  </processor>
+  
+  <processor name="spu_5" type="DSP">
+  </processor>
+  
+</architecture>

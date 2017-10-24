@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:arch="http://www.tik.ee.ethz.ch/~shapes/schema/ARCHITECTURE" targetNamespace="http://www.tik.ee.ethz.ch/~shapes/schema/ARCHITECTURE" elementFormDefault="qualified">
+  <xsd:include schemaLocation="../architecture.xsd"/>
+</xsd:schema>

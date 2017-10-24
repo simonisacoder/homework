@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="dol" default="runexample" basedir=".">
+
+  <description>
+    Ant build file to build and run examples.
+  </description>
+
+  <!-- java compiler properties: a java compiler for Java Platform 5.0 is required -->
+  <!-- do _not_ comment out the following line to use the specified external java compiler and virtual machine -->
+  <!-- <property name="use.external.java" value="yes"/> -->
+  <!-- <property name="use.external.javac" value="yes"/> -->
+
+  <!-- external java binaries -->
+  <property name="java.executable" value="/usr/sepp/bin/java"/>
+  <property name="javac.executable" value="/usr/sepp/bin/javac"/>
+
+  <!-- directory paths -->
+  <property name="lib.dir"     location="./../../../jars"/>
+  <property name="bin.dir"     location="./../../../bin"/>
+  <property name="jars"        value=".:./..:${lib.dir}/dol.jar:${lib.dir}/xercesImpl.jar:${lib.dir}/jdom.jar:${bin.dir}/dol.jar:${bin.dir}/xercesImpl.jar:${bin.dir}/jdom.jar"/>
+  <property name="example.dir" location="./../../../examples"/>
+
+  <!-- these properties can be overwritten using the -D option when calling ant, e.g.: -Dnumber=2 -Dgenerator=protothread -->
+  <property name="number" value="1"/>
+  <property name="generator" value="HdS"/> <!-- HdS, protothread, systemC, PaF, rtems, yapi -->
+
+
+  <!-- main target: calls all the targets required to run an example -->
+  <target name="runexample" depends="showversion">
+    <antcall target="prepare"/>
+    <antcall target="validate"/>
+    <antcall target="flatten1"/>
+    <antcall target="flatten2"/>
+    <antcall target="dol1"/>
+    <antcall target="dol2"/>
+    <antcall target="execute"/>
+  </target>
+
+  <target name="mparm" depends="showversion">
+    <antcall target="prepare"/>
+    <antcall target="validate"/>
+    <antcall target="flatten1"/>
+    <antcall target="flatten2"/>
+    <antcall target="dol_mparm1"/>
+    <antcall target="dol_mparm2"/>
+  </target>
+
+  <target name="cell" depends="showversion">
+    <antcall target="prepare"/>
+    <antcall target="validate"/>
+    <antcall target="flatten1"/>
+    <antcall target="flatten2"/>
+    <antcall target="dol_cell1"/>
+    <antcall target="dol_cell2"/>
+  </target>
+
+  <!-- prepare directory structure and copy sources -->
+  <target name="prepare">
+    <echo message="Create directory example${number}."/>
+    <deletedirectory dir="example${number}"/>
+    <mkdir dir="example${number}"/>
+
+    <echo message="Copy C source files."/>
+    <deletedirectory dir="example${number}/src"/>
+    <mkdir dir="example${number}/src"/>
+    <copy todir="example${number}/src">
+      <fileset dir="${example.dir}/example${number}/src" includes="*.h *.c"/>
+    </copy>
+  </target>
+
+  <!-- validateXML by means of external schema -->
+  <target name="validate" unless="use.external.java">
+    <echo message="check XML compliance of example${number}_flattened.xml."/>
+    <java classname="dol.helper.validator.XMLValidator"
+          dir="example${number}"
+          fork="true"
+          failonerror="true">
+      <classpath path="${jars}"/>
+      <arg line="${example.dir}/example${number}/example${number}.xml"/>
+    </java>
+  </target>
+
+  <!-- create flattened XML (non-external java version) -->
+  <target name="flatten1" unless="use.external.java">
+    <echo message="Create flattened XML example${number}_flattened.xml."/>
+    <java classname="dol.helper.flattener.XMLFlattener"
+          dir="example${number}"
+          fork="true"
+          failonerror="true">
+      <classpath path="${jars}"/>
+      <arg line="${example.dir}/example${number}/example${number}.xml Example${number}Generator"/>
+    </java>
+
+    <javac srcdir="example${number}"
+           destdir="example${number}"
+           includes="Example${number}Generator.java"
+           fork="${use.external.javac}"
+           executable="${javac.executable}"/>
+
+    <java classname="Example${number}Generator"
+          output="example${number}/example${number}_flattened.xml"
+          fork="true"
+          failonerror="true">
+      <classpath path="example${number}"/>
+    </java>
+  </target>
+
+  <!-- create flattened XML (external java version) -->
+  <target name="flatten2" if="use.external.java">
+    <echo message="Create flattened XML example${number}_flattened.xml."/>
+    <java classname="dol.helper.flattener.XMLFlattener"
+          dir="example${number}"
+          fork="true"
+          jvm="${java.executable}"
+          failonerror="true">
+      <classpath path="${jars}"/>
+      <arg line="${example.dir}/example${number}/example${number}.xml Example${number}Generator"/>
+    </java>
+
+    <javac srcdir="example${number}"
+           destdir="example${number}"
+           includes="Example${number}Generator.java"
+           fork="${use.external.javac}"
+           executable="${javac.executable}"/>
+
+    <java classname="Example${number}Generator"
+          output="example${number}/example${number}_flattened.xml"
+          fork="true"
+          jvm="${java.executable}"
+          failonerror="true">
+      <classpath path="example${number}"/>
+    </java>
+  </target>
+
+  <!-- run DOL (non-external java version) -->
+  <target name="dol1" unless="use.external.java">
+    <echo message="Run DOL."/>
+    <java classname="dol.main.Main"
+          dir="example${number}"
+          fork="true"
+          failonerror="true">
+      <classpath path="${jars}"/>
+      <arg line="-P example${number}_flattened.xml -D example${number}.dot --${generator} ${generator} -c"/> 
+    </java>
+  </target>
+
+  <target name="dol_mparm1" unless="use.external.java">
+    <echo message="Run mparm generation."/>
+    <java classname="dol.main.Main"
+          dir="example${number}"
+          fork="true"
+          failonerror="true">
+      <classpath path="${jars}"/>
+      <arg line="-P example${number}_flattened.xml -D example${number}.dot -Rmparm mparm -c"/>
+    </java>
+  </target>
+
+  <target name="dol_cell1" unless="use.external.java">
+    <echo message="Run cell generation."/>
+    <java classname="dol.main.Main"
+          dir="example${number}"
+          fork="true"
+          failonerror="true">
+      <classpath path="${jars}"/>
+      <arg line="-P example${number}_flattened.xml -D example${number}.dot --cbe cell --platform ./../../../../examples/example${number}/cell.xml --mapping ./../../../../examples/example${number}/mapping.xml -c"/>
+    </java>
+  </target>
+
+  <!-- run DOL (external java version) -->
+  <target name="dol2" if="use.external.java">
+    <echo message="Run DOL."/>
+    <java classname="dol.main.Main"
+          dir="example${number}"
+          fork="true"
+          jvm="${java.executable}"
+          failonerror="true">
+      <classpath path="${jars}"/>
+      <arg line="-P example${number}_flattened.xml -D example${number}.dot --${generator} ${generator} -c"/> 
+    </java>
+  </target>
+
+  <target name="dol_mparm2" if="use.external.java">
+    <echo message="Run mparm generation."/>
+    <java classname="dol.main.Main"
+          dir="example${number}"
+          fork="true"
+          jvm="${java.executable}"
+          failonerror="true">
+      <classpath path="${jars}"/>
+      <arg line="-P example${number}_flattened.xml -D example${number}.dot -Rmparm mparm -c"/>
+    </java>
+  </target>
+
+  <target name="dol_cell2" if="use.external.java">
+    <echo message="Run cell generation."/>
+    <java classname="dol.main.Main"
+          dir="example${number}"
+          fork="true"
+          jvm="${java.executable}"
+          failonerror="true">
+      <classpath path="${jars}"/>
+      <arg line="-P example${number}_flattened.xml -D example${number}.dot --cbe cell --platform cell.xml --mapping mapping.xml -c"/>
+    </java>
+  </target>
+
+
+  <!-- create and run SystemC application -->
+  <target name="execute">
+    <!-- the first two tasks are needed to avoid make's clock skew warning -->
+    <tstamp>
+      <format property="touch.time"
+              pattern="MM/dd/yyyy hh:mm aa"
+              offset="-5" unit="second"/>
+    </tstamp>
+    <touch datetime="${touch.time}">
+      <fileset dir="example${number}"/>
+    </touch>
+
+    <echo message="Make ${generator} application."/>
+    <exec executable="make" dir="example${number}/${generator}/src"/>
+
+    <echo message="Run ${generator} application."/>
+    <exec executable="${basedir}/example${number}/${generator}/src/sc_application"
+          output="example${number}/${generator}/src/log.txt"
+          error="example${number}/${generator}/src/errorlog.txt"/>
+    <concat>
+      <fileset dir="example${number}/${generator}/src" includes="log.txt"/>
+    </concat>
+  </target>
+
+  <!-- run the XML checker -->
+  <target name="checkxmls">
+    <java classname="dol.util.CheckXMLs" failonerror="true" fork="true">
+       <classpath path="${jars}"/>
+       <arg line="${example.dir}/examplecell/examplecell.xml ${example.dir}/examplecell/cell.xml ${example.dir}/examplecell/mapping.xml"/>
+    </java>
+  </target>
+
+  <!-- run the application generator -->
+  <target name="applicationgenerator">
+    <java classname="dol.util.ApplicationGenerator" failonerror="true" fork="true">
+       <classpath path="${jars}"/>
+    </java>
+  </target>
+
+  <!-- recursively delete a directory -->
+  <macrodef name="deletedirectory">
+    <attribute name="dir"/>
+    <sequential>
+      <delete includeemptydirs="true" quiet="true">
+        <fileset dir="${dir}" includes="**/*"/>
+      </delete>
+    </sequential>
+  </macrodef>
+
+  <target name="showversion">
+    <antcall target="showantversion"/>
+    <antcall target="showjavaversion1"/>
+    <antcall target="showjavaversion2"/>
+    <antcall target="showjavacversion1"/>
+    <antcall target="showjavacversion2"/>
+  </target>
+
+  <target name="showantversion">
+    <echo message="Use ${ant.version}."/>
+  </target>
+
+  <target name="showjavacversion1" unless="use.external.javac">
+    <echo message="Use Java version ${java.version} (required version: 1.5.0 or higher)."/>
+  </target>
+
+  <target name="showjavacversion2" if="use.external.javac">
+    <echo message="Use the following javac: ${javac.executable}."/>
+  </target>
+
+  <target name="showjavaversion1" unless="use.external.java">
+    <echo message="Use Java version ${java.version} (required version: 1.5.0 or higher)."/>
+  </target>
+
+  <target name="showjavaversion2" if="use.external.java">
+    <echo message="Use the following java: ${java.executable}."/>
+  </target>
+
+</project>

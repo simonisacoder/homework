@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processnetwork xmlns="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK
+http://www.tik.ee.ethz.ch/~shapes/schema/processnetwork.xsd" name="MatrixMult"> 
+
+  <variable value="2" name="N"/> <!-- number of rows/columns of square matrix -->
+
+  <!-- instantiate processes -->
+  <!-- process for generating matrices -->
+  <process name="input_generator">
+    <iterator variable="i" range="N">
+      <iterator  variable="row" range="N">
+        <iterator variable="col" range="N">
+          <port type="output" name="matrixA">
+            <append function="row"/>
+            <append function="col"/>
+            <append function="i"/>
+          </port>
+          <port type="output" name="matrixB">
+            <append function="row"/>
+            <append function="col"/>
+            <append function="i"/>
+          </port>
+        </iterator>
+      </iterator>
+    </iterator>
+    <iterator variable="i" range="N * N">
+      <port type="output" name="zeroinput">
+        <append function="i"/>
+      </port>
+    </iterator>
+    <source type="c" location="generator.c"/>
+  </process>
+
+  <!-- process to collect result -->
+  <process name="output_consumer">
+    <iterator  variable="row" range="N">
+      <iterator variable="col" range="N">
+        <port type="input" name="matrixC">
+          <append function="row"/>
+          <append function="col"/>
+        </port>
+      </iterator>
+    </iterator>
+    <source type="c" location="consumer.c"/>
+  </process>
+
+  <!-- processes to compute result -->
+  <iterator variable="i" range="N">
+    <iterator variable="row" range="N">
+      <iterator variable="col" range="N">
+        <process name="addmult">
+          <append function="i"/>
+          <append function="row"/>
+          <append function="col"/>
+          <port type="input" name="factor1"/>
+          <port type="input" name="factor2"/>
+          <port type="input" name="summand"/>
+          <port type="output" name="sum"/>
+          <source type="c" location="addmult.c"/>
+        </process>
+      </iterator>
+    </iterator>
+  </iterator>
+
+
+  <!-- instantiate channels -->
+  <!-- channels for matrices -->
+  <iterator variable="i" range="N">
+    <iterator variable="row" range="N">
+      <iterator variable="col" range="N">
+        <sw_channel type="fifo" size="8" name="matrixAchannel">
+          <append function="i"/>
+          <append function="row"/>
+          <append function="col"/>
+          <port type="input" name="in"/>
+          <port type="output" name="out"/>
+        </sw_channel>
+        <sw_channel type="fifo" size="8" name="matrixBchannel">
+          <append function="i"/>
+          <append function="row"/>
+          <append function="col"/>
+          <port type="input" name="in"/>
+          <port type="output" name="out"/>
+        </sw_channel>
+      </iterator>
+    </iterator>
+  </iterator>
+
+  <!-- channels for zeros -->
+  <iterator variable="i" range="N">
+    <iterator variable="row" range="N">
+      <sw_channel type="fifo" size="8" name="zerochannel">
+        <append function="i"/>
+        <append function="row"/>
+        <port type="input" name="in"/>
+        <port type="output" name="out"/>
+      </sw_channel>
+    </iterator>
+  </iterator>
+
+  <!-- channels for result -->
+  <iterator variable="row" range="N">
+    <iterator variable="col" range="N">
+      <sw_channel type="fifo" size="8" name="resultchannel">
+        <append function="row"/>
+        <append function="col"/>
+        <port type="input" name="in"/>
+        <port type="output" name="out"/>
+      </sw_channel>
+    </iterator>
+  </iterator>
+  
+  <!-- channels between processes -->
+  <iterator variable="i" range="N">
+    <iterator variable="row" range="N">
+      <iterator variable="col" range="N - 1">
+        <sw_channel type="fifo" size="8" name="addmultchannel">
+          <append function="i"/>
+          <append function="row"/>
+          <append function="col"/>
+          <port type="input" name="in"/>
+          <port type="output" name="out"/>
+        </sw_channel>
+      </iterator>
+    </iterator>
+  </iterator>
+
+
+  <!-- instantiate connections -->
+  <!-- connect the input_generator to the "matrix" and zero channels -->
+  <iterator variable="i" range="N">
+    <iterator variable="row" range="N">
+      <iterator variable="col" range="N">
+        <connection name="tomatrixAchannel">
+          <append function="row"/>
+          <append function="col"/>
+          <append function="i"/>
+          <origin name="input_generator">
+            <port name="matrixA">
+              <append function="row"/>
+              <append function="col"/>
+              <append function="i"/>
+            </port>
+          </origin>
+          <target name="matrixAchannel">
+            <append function="i"/>
+            <append function="row"/>
+            <append function="col"/>
+            <port name="in"/>
+          </target>
+        </connection>
+
+        <connection name="tomatrixBchannel">
+          <append function="row"/>
+          <append function="col"/>
+          <append function="i"/>
+          <origin name="input_generator">
+            <port name="matrixB">
+              <append function="row"/>
+              <append function="col"/>
+              <append function="i"/>
+            </port>
+          </origin>
+          <target name="matrixBchannel">
+            <append function="i"/>
+            <append function="row"/>
+            <append function="col"/>
+            <port name="in"/>
+          </target>
+        </connection>
+      </iterator>
+
+      <connection name="tozerochannel">
+        <append function="i * N + row"/>
+        <origin name="input_generator">
+          <port name="zeroinput">
+            <append function="i * N + row"/>
+          </port>
+        </origin>
+        <target name="zerochannel">
+          <append function="i"/>
+          <append function="row"/>
+          <port name="in"/>
+        </target>
+      </connection>
+    </iterator>
+  </iterator>
+  
+  <!-- connect the "matrix" and "zero" channels to the addmults -->
+  <iterator variable="i" range="N">
+    <iterator variable="row" range="N">
+      <iterator variable="col" range="N">
+        <!-- connection for matrix A -->
+        <connection name="matrixA_connection">
+          <append function="i"/>
+          <append function="row"/>
+          <append function="col"/>
+          <origin name="matrixAchannel">
+            <append function="i"/>
+            <append function="row"/>
+            <append function="col"/>
+            <port name="out"/>
+          </origin>
+          <target name="addmult">
+            <append function="i"/>
+            <append function="row"/>
+            <append function="col"/>
+            <port name="factor1"/>
+          </target>
+        </connection>
+
+        <!-- connection for matrix B -->
+        <!-- note the order of appends for matrixBchannel -->
+        <connection name="matrixB_connection">
+          <append function="i"/>
+          <append function="row"/>
+          <append function="col"/>
+          <origin name="matrixBchannel">
+            <append function="row"/>
+            <append function="col"/>
+            <append function="i"/>
+            <port name="out"/>
+          </origin>
+          <target name="addmult">
+            <append function="i"/>
+            <append function="row"/>
+            <append function="col"/>
+            <port name="factor2"/>
+          </target>
+        </connection>
+      </iterator>
+
+      <!-- zero input connections to addmults -->
+      <connection name="zero_connection">
+        <append function="i"/>
+        <append function="row"/>
+        <origin name="zerochannel">
+          <append function="i"/>
+          <append function="row"/>
+          <port name="out"/>
+        </origin>
+        <target name="addmult">
+          <append function="i"/>
+          <append function="row"/>
+          <append function="0"/>
+          <port name="summand"/>
+        </target>
+      </connection>
+    </iterator>
+  </iterator>
+
+  <!-- connections from output of addmults to "addmult" channels -->
+  <iterator variable="i" range="N">
+    <iterator variable="row" range="N">
+      <iterator variable="col" range="N - 1">
+        <connection name="fromaddmult">
+          <append function="i"/>
+          <append function="row"/>
+          <append function="col"/>
+          <origin name="addmult">
+            <append function="i"/>
+            <append function="row"/>
+            <append function="col"/>
+            <port name="sum"/>
+          </origin>
+          <target name="addmultchannel">
+            <append function="i"/>
+            <append function="row"/>
+            <append function="col"/>
+            <port name="in"/>
+          </target>
+        </connection>
+      </iterator>
+    </iterator>
+  </iterator>
+
+  <!-- connections from "addmult" channels to input of addmults -->
+  <iterator variable="i" range="N">
+    <iterator variable="row" range="N">
+      <iterator variable="col" range="N - 1">
+        <connection name="toaddmult">
+          <append function="i"/>
+          <append function="row"/>
+          <append function="col + 1"/>
+          <origin name="addmultchannel">
+            <append function="i"/>
+            <append function="row"/>
+            <append function="col"/>
+            <port name="out"/>
+          </origin>
+          <target name="addmult">
+            <append function="i"/>
+            <append function="row"/>
+            <append function="col + 1"/>
+            <port name="summand"/>
+          </target>
+        </connection>
+      </iterator>
+    </iterator>
+  </iterator>
+  
+  <!-- connections from addmults to "result" channels -->
+  <iterator variable="row" range="N">
+    <iterator variable="col" range="N">
+      <connection name="tomatrixCchannel">
+        <append function="row"/>
+        <append function="col"/>
+        <origin name="addmult">
+          <append function="col"/>
+          <append function="row"/>
+          <append function="N-1"/>
+          <port name="sum"/>
+        </origin>
+        <target name="resultchannel">
+          <append function="row"/>
+          <append function="col"/>
+          <port name="in"/>
+        </target>
+      </connection>
+    </iterator>
+  </iterator>
+
+  <!-- connections from "result" channels to output_consumer -->
+  <iterator variable="row" range="N">
+    <iterator variable="col" range="N">
+      <connection name="frommatrixCchannel">
+        <append function="row"/>
+        <append function="col"/>
+        <origin name="resultchannel">
+          <append function="row"/>
+          <append function="col"/>
+          <port name="out"/>
+        </origin>
+        <target name="output_consumer">
+          <port name="matrixC">
+            <append function="row"/>
+            <append function="col"/>
+          </port>
+        </target>
+      </connection>
+    </iterator>
+  </iterator>
+    
+</processnetwork>

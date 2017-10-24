@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+  <xsd:complexType name="variable">
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+    <xsd:attribute name="value" type="xsd:integer" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="function">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="name" type="xsd:string" use="optional"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="append">
+    <xsd:attribute name="function" type="xsd:string" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="iterator">
+    <xsd:attribute name="variable" type="xsd:string" use="required"/>
+    <xsd:attribute name="range" type="xsd:string" use="required"/>
+    <!-- 
+    <xsd:attribute name="range" use="required">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:pattern value="for.*"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    -->
+  </xsd:complexType>
+
+  <xsd:complexType name="configuration">
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+    <xsd:attribute name="value" type="xsd:string" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="profiling">
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+    <xsd:attribute name="value" type="xsd:string" use="required"/>
+  </xsd:complexType>
+  
+  <xsd:complexType name="element">
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+    <xsd:attribute name="basename" type="xsd:string" use="optional"/>
+    <xsd:attribute name="range" type="xsd:string" use="optional"/>
+  </xsd:complexType>
+  
+</xsd:schema>

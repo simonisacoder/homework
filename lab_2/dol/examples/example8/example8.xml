@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processnetwork xmlns="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK
+http://www.tik.ee.ethz.ch/~shapes/schema/processnetwork.xsd" name="example8"> 
+
+  <!-- processes -->
+  <process name="producer"> 
+    <port type="output" name="A"/>
+    <port type="output" name="B"/>
+     <source type="c" location="producer.c"/>
+  </process>
+
+  <process name="consumer"> 
+    <port type="input" name="A"/> 
+       <port type="input" name="B"/>
+    <source type="c" location="consumer.c"/>
+  </process>
+
+
+  <!-- sw_channels -->
+  <sw_channel type="fifo" size="10" name="C1">
+    <port type="input" name="in"/>
+    <port type="output" name="out"/>
+  </sw_channel>
+
+  <sw_channel type="fifo" size="10" name="C2">
+    <port type="input" name="in"/>
+    <port type="output" name="out"/>
+  </sw_channel>
+
+  <!-- connections -->
+  <connection name="p-c1-a">
+    <origin name="producer">
+      <port name="A"/>
+    </origin>
+    <target name="C1">
+      <port name="in"/>
+    </target>
+  </connection>
+
+  <connection name="p-c1-b">
+    <origin name="producer">
+      <port name="B"/>
+    </origin>
+    <target name="C2">
+      <port name="in"/>
+    </target>
+  </connection>
+
+  <connection name="c-c1-a">
+    <origin name="C1">
+      <port name="out"/>
+    </origin>
+    <target name="consumer">
+      <port name="A"/>
+    </target>
+  </connection>
+
+  <connection name="c-c2-b">
+    <origin name="C2">
+     <port name="out"/>
+    </origin>
+    <target name="consumer">
+      <port name="B"/>
+    </target>
+  </connection>
+
+</processnetwork>

@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:pn="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK" targetNamespace="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK"  elementFormDefault="qualified" >
+  <xsd:include schemaLocation="generics.xsd"/>
+
+  <xsd:element name="processnetwork">
+    <xsd:complexType>
+      <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+        <xsd:element name="variable" type="pn:variable" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="function" type="pn:function" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="process" type="pn:process" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="sw_channel" type="pn:sw_channel" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="iterator" type="pn:generaliterator" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="connection" type="pn:connection" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="configuration" type="pn:configuration" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="process">
+    <xsd:complexContent>
+      <xsd:extension base="pn:element">
+        <xsd:sequence>
+          <xsd:element name="append" type="pn:append" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:choice minOccurs="0">
+            <xsd:sequence>
+              <xsd:element name="iterator" type="pn:qualifiedportiterator" maxOccurs="unbounded"/>
+              <xsd:element name="port" type="pn:qualifiedport" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:element name="port" type="pn:qualifiedport" maxOccurs="unbounded"/>
+          </xsd:choice>
+          <xsd:element name="source" type="pn:source"/>
+          <xsd:element name="configuration" type="pn:configuration" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="source">
+    <xsd:attribute name="type" use="required">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="c"/>
+          <xsd:enumeration value="c++"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="location" type="xsd:string" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="sw_channel">
+    <xsd:complexContent>
+      <xsd:extension base="pn:element">
+        <xsd:sequence>
+          <xsd:element name="append" type="pn:append" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="port" type="pn:qualifiedport" minOccurs="2" maxOccurs="2"/>
+          <xsd:element name="configuration" type="pn:configuration" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="size" type="xsd:string" use="required"/>
+        <xsd:attribute name="tokensize" type="xsd:string" default="1" use="optional"/>
+        <xsd:attribute name="type" use="required">
+          <xsd:simpleType>
+            <xsd:restriction base="xsd:string">
+              <xsd:enumeration value="fifo"/>
+              <xsd:enumeration value="wfifo"/>
+            </xsd:restriction>
+          </xsd:simpleType>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="port">
+    <xsd:complexContent>
+      <xsd:extension base="pn:element">
+        <xsd:sequence>
+          <xsd:element name="append" type="pn:append" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="qualifiedport">
+    <xsd:complexContent>
+      <xsd:extension base="pn:port">
+        <xsd:attribute name="type" use="required">
+          <xsd:simpleType>
+            <xsd:restriction base="xsd:string">
+              <xsd:enumeration value="input"/>
+              <xsd:enumeration value="output"/>
+            </xsd:restriction>
+          </xsd:simpleType>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="connection">
+    <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+      <xsd:element name="append" type="pn:append" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="origin" type="pn:connector"/>
+      <xsd:element name="target" type="pn:connector"/>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="connector">
+    <xsd:sequence>
+      <xsd:element name="append" type="pn:append" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="port" type="pn:port"/>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+  
+  <xsd:complexType name="generaliterator">
+    <xsd:complexContent>
+      <xsd:extension base="pn:iterator">
+        <xsd:sequence>
+          <xsd:element name="iterator" type="pn:generaliterator" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="process" type="pn:process" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="sw_channel" type="pn:sw_channel" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="connection" type="pn:connection" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="qualifiedportiterator">
+    <xsd:complexContent>
+      <xsd:extension base="pn:iterator">
+        <xsd:choice>
+          <xsd:sequence>
+            <xsd:element name="iterator" type="pn:qualifiedportiterator" maxOccurs="unbounded"/>
+            <xsd:element name="port" type="pn:qualifiedport" minOccurs="0" maxOccurs="unbounded"/>
+          </xsd:sequence>
+          <xsd:element name="port" type="pn:qualifiedport" maxOccurs="unbounded"/>
+        </xsd:choice>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+</xsd:schema>

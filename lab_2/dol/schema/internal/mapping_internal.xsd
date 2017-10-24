@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:arch="http://www.tik.ee.ethz.ch/~shapes/schema/MAPPING" targetNamespace="http://www.tik.ee.ethz.ch/~shapes/schema/MAPPING" elementFormDefault="qualified">
+  <xsd:include schemaLocation="../mapping.xsd"/>
+</xsd:schema>

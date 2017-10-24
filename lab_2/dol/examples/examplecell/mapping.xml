@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping xmlns="http://www.tik.ee.ethz.ch/~shapes/schema/MAPPING"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.tik.ee.ethz.ch/~shapes/schema/MAPPING
+                      http://www.tik.ee.ethz.ch/~shapes/schema/mapping.xsd"
+  name="examplecell on Cell">
+
+  <binding name="binding_generator" xsi:type="computation">
+    <process name="generator"/>
+    <processor name="ppu"/>
+  </binding>
+  
+  <binding name="binding_square_0" xsi:type="computation">
+    <process name="square_0">
+    </process>
+    <processor name="spu_4"/>
+  </binding>
+
+  <binding name="binding_square_1" xsi:type="computation">
+    <process name="square_1">
+    </process>
+    <processor name="spu_1"/>
+  </binding>
+  
+  <binding name="binding_square_2" xsi:type="computation">
+    <process name="square_2">
+    </process>
+    <processor name="spu_2"/>
+  </binding>
+  
+  <binding name="binding_square_3" xsi:type="computation">
+    <process name="square_3">
+    </process>
+    <processor name="spu_3"/>
+  </binding>
+  
+  <binding name="binding_square_4" xsi:type="computation">
+    <process name="square_4">
+    </process>
+    <processor name="spu_4"/>
+  </binding>
+
+  <binding name="binding_square_5" xsi:type="computation">
+    <process name="square_5">
+    </process>
+    <processor name="spu_5"/>
+  </binding>
+  
+  <binding name="binding_square_6" xsi:type="computation">
+    <process name="square_6">
+    </process>
+    <processor name="spu_1"/>
+  </binding>
+  
+  <binding name="binding_square_7" xsi:type="computation">
+    <process name="square_7">
+    </process>
+    <processor name="spu_2"/>
+  </binding>
+  
+  <binding name="binding_square_8" xsi:type="computation">
+    <process name="square_8">
+    </process>
+    <processor name="spu_3"/>
+  </binding>
+  
+  <binding name="binding_consumer" xsi:type="computation">
+    <process name="consumer"/>
+    <processor name="spu_0"/>
+  </binding>
+</mapping>

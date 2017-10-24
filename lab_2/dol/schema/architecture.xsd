@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:arch="http://www.tik.ee.ethz.ch/~shapes/schema/ARCHITECTURE" targetNamespace="http://www.tik.ee.ethz.ch/~shapes/schema/ARCHITECTURE" elementFormDefault="qualified">
+  <xsd:include schemaLocation="generics.xsd"/>
+
+  <xsd:element name="architecture">
+    <xsd:complexType>
+      <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+        <xsd:element name="variable" type="arch:variable" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="function" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="processor" type="arch:processor" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="memory" type="arch:memory" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="hw_channel" type="arch:hw_channel" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="iterator" type="arch:generaliterator" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="readpath" type="arch:readpath" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="writepath" type="arch:writepath" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="processor">
+    <xsd:complexContent>
+      <xsd:extension base="arch:resource">
+        <xsd:attribute name="type" use="required">
+          <xsd:simpleType>
+            <xsd:restriction base="xsd:string">
+              <xsd:enumeration value="RISC"/>
+              <xsd:enumeration value="DSP"/>
+              <xsd:enumeration value="POT"/>
+              <xsd:enumeration value="NETSIM"/>
+            </xsd:restriction>
+          </xsd:simpleType>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="memory">
+    <xsd:complexContent>
+      <xsd:extension base="arch:resource">
+        <xsd:attribute name="type" use="required">
+          <xsd:simpleType>
+            <xsd:restriction base="xsd:string">
+              <xsd:enumeration value="ROM"/>
+              <xsd:enumeration value="RAM"/>
+              <xsd:enumeration value="REG"/>
+              <xsd:enumeration value="DXM"/>
+            </xsd:restriction>
+          </xsd:simpleType>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="hw_channel">
+    <xsd:complexContent>
+      <xsd:extension base="arch:resource">
+        <xsd:attribute name="type" use="required">
+          <xsd:simpleType>
+            <xsd:restriction base="xsd:string">
+              <xsd:enumeration value="FIFO"/>
+              <xsd:enumeration value="BUS"/>
+              <xsd:enumeration value="DMA"/>
+              <xsd:enumeration value="SPI"/>
+              <xsd:enumeration value="BRIDGE"/>
+            </xsd:restriction>
+          </xsd:simpleType>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="resource">
+    <xsd:complexContent>
+      <xsd:extension base="arch:element">
+        <xsd:sequence>
+          <xsd:element name="append" type="arch:append" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="configuration" type="arch:configuration" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="writepath">
+    <xsd:sequence minOccurs="1" maxOccurs="1">
+      <xsd:element name="append" type="arch:append" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="processor" type="arch:resourcereference" minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="txbuf" type="arch:resourcereference" minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="hw_channel" type="arch:resourcereference" minOccurs="1" maxOccurs="unbounded"/>
+      <xsd:element name="chbuf" type="arch:resourcereference" minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="configuration" type="arch:configuration" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="readpath">
+    <xsd:sequence minOccurs="1" maxOccurs="1">
+      <xsd:element name="append" type="arch:append" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="processor" type="arch:resourcereference" minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="chbuf" type="arch:resourcereference" minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="hw_channel" type="arch:resourcereference" minOccurs="1" maxOccurs="unbounded"/>
+      <xsd:element name="rxbuf" type="arch:resourcereference" minOccurs="1" maxOccurs="1"/>
+      <xsd:element name="configuration" type="arch:configuration" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="resourcereference">
+    <xsd:sequence>
+      <xsd:element name="append" type="arch:append" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="generaliterator">
+    <xsd:complexContent>
+      <xsd:extension base="arch:iterator">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+          <xsd:element name="readpath" type="arch:readpath" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="writepath" type="arch:writepath" minOccurs="0" maxOccurs="unbounded"/>	
+          <xsd:element name="processor" type="arch:processor" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="memory" type="arch:memory" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="hw_channel" type="arch:hw_channel" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="iterator" type="arch:generaliterator" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+</xsd:schema>

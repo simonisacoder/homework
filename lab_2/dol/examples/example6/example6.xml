@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processnetwork xmlns="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK
+http://www.tik.ee.ethz.ch/~shapes/schema/processnetwork.xsd" name="filter">
+
+  <!-- instantiate processes -->
+  <process name="producer">
+    <port type="output" name="out"/>
+    <source type="c" location="producer.c"/>
+  </process>
+
+  <process name="consumer">
+    <port type="input" name="in"/>
+    <source type="c" location="consumer.c"/>
+  </process>
+
+  <process name="filter">
+    <port type="input" name="inA"/>
+    <port type="input" name="inB"/>
+    <port type="output" name="outA"/>
+    <port type="output" name="outB"/>
+    <source type="c" location="filter.c"/>
+  </process>
+  
+  <sw_channel type="fifo" size="4" name="inputchannel">
+    <port type="input" name="in"/>
+    <port type="output" name="out"/>
+  </sw_channel>
+
+  <sw_channel type="fifo" size="4" name="outputchannel">
+    <port type="input" name="in"/>
+    <port type="output" name="out"/>
+  </sw_channel>
+
+  <sw_channel type="fifo" size="4" name="filterchannel">
+    <port type="input" name="in"/>
+    <port type="output" name="out"/>
+  </sw_channel>
+
+  <connection name="inputconnection">
+    <origin name="producer">
+      <port name="out"/>
+    </origin>
+    <target name="inputchannel">
+      <port name="in"/>
+    </target>
+  </connection>
+
+  <connection name="outputconnection">
+    <origin name="outputchannel">
+      <port name="out"/>
+    </origin>
+    <target name="consumer">
+      <port name="in"/>
+    </target>
+  </connection>
+
+  <connection name="filterconnectionin">
+    <origin name="inputchannel">
+      <port name="out"/>
+    </origin>
+    <target name="filter">
+      <port name="inA"/>
+    </target>
+  </connection>
+
+  <connection name="filterconnectionout">
+    <origin name="filter">
+      <port name="outA"/>
+    </origin>
+    <target name="outputchannel">
+      <port name="in"/>
+    </target>
+  </connection>
+
+  <!-- feedback connection -->
+  <connection name="filterconnectionfeedbackA">
+    <origin name="filter">
+      <port name="outB"/>
+    </origin>
+    <target name="filterchannel">
+      <port name="in"/>
+    </target>
+  </connection>
+
+  <connection name="filterconnectionfeedbackB">
+    <origin name="filterchannel">
+      <port name="out"/>
+    </origin>
+    <target name="filter">
+      <port name="inB"/>
+    </target>
+  </connection>
+
+</processnetwork>

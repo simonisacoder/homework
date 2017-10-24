@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="dol" default="compile" basedir=".">
+
+  <description>
+    Build file for ETHZ SHAPES Toolbox.
+  </description>
+
+  <!-- *************************************************************** -->
+  <!-- * properties                                                  * -->
+  <!-- *************************************************************** -->
+  
+  <!-- modify the following properties as required -->
+
+  <!-- SystemC paths -->
+  <!-- systemc.inc is the path of the SystemC include directory -->
+  <!-- systemc.lib is the filename of the executable SystemC library -->
+  <!-- These two paths will be used to generate the Makefile that is used to build the SystemC
+       executable binary file. -->
+  <property name="systemc.inc"   value="/media/simon/Study/3-up/embeded system/lab_2/systemc-2.3.1/include"/>
+  <property name="systemc.lib"   value="/media/simon/Study/3-up/embeded system/lab_2/systemc-2.3.1/lib-linux64/libsystemc.a"/>
+
+  <!-- classpath delimiter (use ":" for UNIX, use ";" for Windows) -->
+  <property name="classpathdelimiter" value=":"/>
+
+  <!-- java compiler properties: a java compiler for Java Platform 5.0 is required -->
+  <!-- do _not_ comment out the following line to use the specified external java
+       compiler and virtual machine -->
+  <!-- <property name="use.external.java" value="yes"/> -->
+  <!-- <property name="use.external.javac" value="yes"/> -->
+  <!-- <property name="use.external.javadoc" value="yes"/> -->
+
+  <!-- external java binaries (ignored if the previous two lines are commented out) -->  
+  <property name="java.executable"  value="/usr/sepp/bin/java"/>
+  <property name="javac.executable" value="/usr/sepp/bin/javac"/>
+  <property name="javadoc.executable" value="/usr/sepp/bin/javadoc"/>
+
+  <!-- directory where DOL is located (with forward slashes even for Windows), don't change -->
+  <pathconvert property="dol.path" dirsep="/">
+    <map from="${basedir}" to="${basedir}"/>
+    <path location="${basedir}"/>
+  </pathconvert>
+
+  <!-- XML schema properties (don't change) -->
+  <property name="xsischema"     value=" file:///${dol.path}/schema"/>
+
+  <!-- directory paths (don't change) -->
+  <property name="jars.dir"      location="bin"/>
+  <property name="examples.dir"  location="examples"/>
+  <property name="build.dir"     location="build"/>
+  <property name="bin.dir"       location="${build.dir}/bin"/>
+  <property name="bin.main.dir"  location="${bin.dir}/main"/>
+ 
+ 
+  <!-- *************************************************************** -->
+  <!-- * targets                                                     * -->
+  <!-- *************************************************************** -->
+  <target name="all" depends="showantversion, config, compile"/>
+  
+  <target name="config">
+    <echo message="Create new dol.properties file."/>
+    <copy file="${jars.dir}/dol_template.properties"
+          tofile="${jars.dir}/dol.properties">
+      <filterchain>
+         <!-- don't strip comments from the template file -->
+         <!-- 
+         <striplinecomments>
+           <comment value="#"/>
+         </striplinecomments> -->
+         <replacetokens>
+            <token key="dol_path"                value="${dol.path}"/>
+            <token key="systemc_inc"             value="${systemc.inc}"/>
+            <token key="systemc_lib"             value="${systemc.lib}"/>
+         </replacetokens>
+      </filterchain>
+    </copy>
+    <jar destfile="${jars.dir}/dol.jar" basedir="${jars.dir}" update="true">
+      <include name="dol.properties"/>
+    </jar>
+    <delete file="${jars.dir}/dol.properties"/>
+  </target>
+
+  <target name="compile" depends="showantversion">
+    <echo message="Create build directory tree."/>
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${bin.dir}"/>
+    <mkdir dir="${bin.main.dir}"/>
+
+    <!-- copy runexample script -->
+    <copy file="${examples.dir}/runexample.sh"
+      tofile="${bin.main.dir}/runexample.sh">
+      <filterset>
+        <filter token="classpath_delimiter" value="${classpathdelimiter}"/>
+      </filterset>
+    </copy>
+    <chmod file="${bin.main.dir}/runexample.sh" perm="u+x"/>
+
+    <!-- copy runexample ant build file -->    
+    <copy file="${examples.dir}/runexample.xml"
+          tofile="${bin.main.dir}/runexample.xml"
+          overwrite="true"/>
+    <antcall target="updatebuildxml"/>
+  </target>
+  
+  <!-- update the runexample ant build file depending on whether external java is used or not -->
+  <target name="updatebuildxml">
+    <antcall target="updatebuildxml1"/>
+    <antcall target="updatebuildxml2"/>
+  </target>
+  
+  <target name="updatebuildxml1" if="use.external.javac">
+    <replace file="${bin.main.dir}/runexample.xml">
+      <replacetoken><![CDATA[<!-- <property name="use.external.javac" value="yes"/> -->]]></replacetoken>
+      <replacevalue><![CDATA[<property name="use.external.javac" value="yes"/>]]></replacevalue>
+    </replace>
+    <move file="${bin.main.dir}/runexample.xml"
+          tofile="${bin.main.dir}/temp.xml">
+      <filterchain>
+        <tokenfilter>
+          <replaceregex pattern="(\p{Punct})/usr/sepp/bin/javac(\p{Punct})"
+                        replace="\1${javac.executable}\2"
+                        flags="g"/>
+        </tokenfilter>
+      </filterchain>
+    </move>
+    <move file="${bin.main.dir}/temp.xml"
+          tofile="${bin.main.dir}/runexample.xml"/>
+  </target>
+
+  <target name="updatebuildxml2" if="use.external.java">
+    <replace file="${bin.main.dir}/runexample.xml">
+      <replacetoken><![CDATA[<!-- <property name="use.external.java" value="yes"/> -->]]></replacetoken>
+      <replacevalue><![CDATA[<property name="use.external.java" value="yes"/>]]></replacevalue>
+    </replace>
+    <move file="${bin.main.dir}/runexample.xml"
+          tofile="${bin.main.dir}/temp.xml">
+      <filterchain>
+        <tokenfilter>
+          <replaceregex pattern="(\p{Punct})/usr/sepp/bin/java(\p{Punct})"
+                        replace="\1${java.executable}\2"
+                        flags="g"/>
+        </tokenfilter>
+      </filterchain>
+    </move>
+    <move file="${bin.main.dir}/temp.xml"
+          tofile="${bin.main.dir}/runexample.xml"/>
+  </target>
+
+  <target name="clean">
+    <echo message="Remove build directory."/>  
+    <delete dir="${build.dir}"/>
+  </target>
+  
+  <target name="showantversion">
+    <echo message="Use ${ant.version}."/>
+    <antcall target="showjavaversion1"/>
+    <antcall target="showjavaversion2"/>
+  </target>
+  
+  <target name="showjavaversion1" unless="use.external.javac">
+    <echo message="Use Java version ${java.version} (required version: 1.5.0 or higher)."/>
+  </target>
+  
+  <target name="showjavaversion2" if="use.external.javac">
+    <echo message="Use the following javac: ${javac.executable}."/>
+  </target>
+
+</project>

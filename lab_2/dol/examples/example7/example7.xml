@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processnetwork xmlns="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK
+http://www.tik.ee.ethz.ch/~shapes/schema/processnetwork.xsd" name="filter">
+
+  <!-- N - 1 is the filter order -->
+  <variable name="N" value="3"/>
+
+  <!-- instantiate processes -->
+  <process name="producer">
+    <port type="output" name="out"/>
+    <source type="c" location="producer.c"/>
+  </process>
+
+  <process name="consumer">
+    <port type="input" name="in"/>
+    <source type="c" location="consumer.c"/>
+  </process>
+
+  <iterator  variable="i" range="N">
+    <process name="filter">
+      <append function="i"/>
+      <port type="input" name="inA"/>
+      <port type="input" name="inB"/>
+      <port type="output" name="outA"/>
+      <port type="output" name="outB"/>
+      <source type="c" location="filter.c"/>
+    </process>
+  </iterator>
+  
+  <!-- instantiate sw_channels -->
+  <sw_channel type="fifo" size="4" name="inputchannel">
+    <port type="input" name="in"/>
+    <port type="output" name="out"/>
+  </sw_channel>
+
+  <sw_channel type="fifo" size="4" name="outputchannel">
+    <port type="input" name="in"/>
+    <port type="output" name="out"/>
+  </sw_channel>
+  
+  <iterator  variable="i" range="N - 1">  
+    <sw_channel type="fifo" size="4" name="filterchannelA">
+      <append function="i"/>
+      <port type="input" name="in"/>
+      <port type="output" name="out"/>
+    </sw_channel>
+
+    <sw_channel type="fifo" size="4" name="filterchannelB">
+      <append function="i"/>
+      <port type="input" name="in"/>
+      <port type="output" name="out"/>
+    </sw_channel>
+  </iterator>
+  
+  <sw_channel type="fifo" size="4" name="feedbackchannel">
+    <port type="input" name="in"/>
+    <port type="output" name="out"/>
+  </sw_channel>
+
+  <!-- connections of top filter stage -->
+  <connection name="inputconnection">
+    <origin name="producer">
+      <port name="out"/>
+    </origin>
+    <target name="inputchannel">
+      <port name="in"/>
+    </target>
+  </connection>
+
+  <connection name="outputconnection">
+    <origin name="outputchannel">
+      <port name="out"/>
+    </origin>
+    <target name="consumer">
+      <port name="in"/>
+    </target>
+  </connection>
+  
+  <connection name="filterconnectionin">
+    <origin name="inputchannel">
+      <port name="out"/>
+    </origin>
+    <target name="filter">
+      <append function="0"/>
+      <port name="inA"/>
+    </target>
+  </connection>
+
+  <connection name="filterconnectionout">
+    <origin name="filter">
+      <append function="0"/>
+      <port name="outB"/>
+    </origin>
+    <target name="outputchannel">
+      <port name="in"/>
+    </target>
+  </connection>
+
+  <!-- connections of intermediate filter stage(s) -->  
+  <iterator  variable="i" range="N - 1">  
+    <connection name="filterconnectionoutAinA1">
+      <append function="i"/>
+      <origin name="filter">
+        <append function="i"/>
+        <port name="outA"/>
+      </origin>
+      <target name="filterchannelA">
+        <append function="i"/>
+        <port name="in"/>
+      </target>
+    </connection>
+ 
+    <connection name="filterconnectionoutAinA2">
+      <append function="i"/>
+      <origin name="filterchannelA">
+        <append function="i"/>
+        <port name="out"/>
+      </origin>
+      <target name="filter">
+        <append function="i + 1"/>
+        <port name="inA"/>
+      </target>
+    </connection>
+
+    <connection name="filterconnectionoutBinB1">
+      <append function="i"/>
+      <origin name="filter">
+        <append function="i + 1"/>
+        <port name="outB"/>
+      </origin>
+      <target name="filterchannelB">
+        <append function="i"/>
+        <port name="in"/>
+      </target>
+    </connection>
+ 
+    <connection name="filterconnectionoutBinB2">
+      <append function="i"/>
+      <origin name="filterchannelB">
+        <append function="i"/>
+        <port name="out"/>
+      </origin>
+      <target name="filter">
+        <append function="i"/>
+        <port name="inB"/>
+      </target>
+    </connection>
+  </iterator>
+  
+  <!-- connection of bottom filter stage -->
+  <connection name="sinkconnectionA1">
+    <origin name="filter">
+      <append function="N - 1"/>
+      <port name="outA"/>
+    </origin>
+    <target name="feedbackchannel">
+      <port name="in"/>
+    </target>
+  </connection>
+  
+  <connection name="sinkconnectionA2">
+    <origin name="feedbackchannel">
+      <port name="out"/>
+    </origin>
+    <target name="filter">
+      <append function="N - 1"/>
+      <port name="inB"/>
+    </target>
+  </connection>
+</processnetwork>

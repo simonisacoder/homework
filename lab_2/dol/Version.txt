@@ -1,0 +1,9 @@
+$Id: Version.txt 1328 2009-07-29 11:39:47Z wolferl $ 
+
+Version 1.6 2009-07-29 r1328
+Version 1.5 2008-07-23 r1069
+Version 1.4 2008-01-01 r949
+Version 1.3 2007-06-25 r706
+Version 1.2 2007-02-07 r577
+Version 1.1 2006-08-29 r356
+Version 1.0 2006-08-07 r258

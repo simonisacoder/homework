@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapping xmlns="http://www.tik.ee.ethz.ch/~shapes/schema/MAPPING" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="http://www.tik.ee.ethz.ch/~shapes/schema/MAPPING     http://www.tik.ee.ethz.ch/~shapes/schema/mapping.xsd" name="example1_map_1">
+ 
+<binding name="generator" xsi:type="computation">
+	<process name="generator" />
+	<processor name="sim1" />
+</binding>
+<binding name="consumer" xsi:type="computation">
+	<process name="consumer" />
+	<processor name="sim1" />
+</binding>
+<binding name="square" xsi:type="computation">
+	<process name="square" />
+	<processor name="sim1" />
+</binding>
+</mapping>

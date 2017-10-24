@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:map="http://www.tik.ee.ethz.ch/~shapes/schema/MAPPING" targetNamespace="http://www.tik.ee.ethz.ch/~shapes/schema/MAPPING" elementFormDefault="qualified">
+  <xsd:include schemaLocation="generics.xsd"/>
+
+  <xsd:element name="mapping">
+    <xsd:complexType>
+      <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+        <xsd:element name="variable" type="map:variable" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="function" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="iterator" type="map:generaliterator" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="binding" type="map:binding" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="schedule" type="map:schedule" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="binding">
+    <xsd:sequence>
+      <xsd:element name="append" type="map:append" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+  
+  <xsd:complexType name="computation">
+    <xsd:complexContent>
+      <xsd:extension base="map:binding">
+        <xsd:sequence>
+          <xsd:element name="process" type="map:resource" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="processor" type="map:resource" minOccurs="1" maxOccurs="1"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="communication">
+    <xsd:complexContent>
+      <xsd:extension base="map:binding">
+        <xsd:sequence>
+          <xsd:element name="sw_channel" type="map:resource" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="writepath" type="map:resource" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="readpath" type="map:resource" minOccurs="1" maxOccurs="1"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="schedule">
+    <xsd:sequence>
+      <xsd:element name="append" type="map:append" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="resource" type="map:resource"/>
+      <xsd:element name="origin" type="map:configuredresource" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="configuration" type="map:configuration" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+    <xsd:attribute name="type" use="required">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="static"/>
+          <xsd:enumeration value="fixedpriority"/>
+          <xsd:enumeration value="fifo"/>
+          <xsd:enumeration value="tdma"/>
+          <xsd:enumeration value="roundrobin"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+  </xsd:complexType>
+
+  <xsd:complexType name="resource">
+    <xsd:sequence>
+      <xsd:element name="append" type="map:append" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="configuredresource">
+    <xsd:sequence>
+      <xsd:element name="append" type="map:append" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:element name="configuration" type="map:configuration" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="generaliterator">
+    <xsd:complexContent>
+      <xsd:extension base="map:iterator">
+        <xsd:sequence>
+          <xsd:element name="iterator" type="map:generaliterator" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="binding" type="map:binding" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="schedule" type="map:schedule" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+</xsd:schema>

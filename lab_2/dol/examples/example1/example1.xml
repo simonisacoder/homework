@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<processnetwork 
+xmlns="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tik.ee.ethz.ch/~shapes/schema/PROCESSNETWORK
+    http://www.tik.ee.ethz.ch/~shapes/schema/processnetwork.xsd" name="example1"> 
+
+  <!-- processes -->
+  <process name="generator"> 
+    <port type="output" name="1"/>
+    <source type="c" location="generator.c"/>
+  </process>
+
+  <process name="consumer"> 
+    <port type="input" name="1"/> 
+    <source type="c" location="consumer.c"/>
+  </process>
+
+  <process name="square"> 
+    <port type="input" name="1"/>
+    <port type="output" name="2"/>
+    <source type="c" location="square.c"/>
+  </process>
+
+  <!-- sw_channels -->
+  <sw_channel type="fifo" size="10" name="C1">
+    <port type="input" name="0"/>
+    <port type="output" name="1"/>
+  </sw_channel>
+
+  <sw_channel type="fifo" size="10" name="C2">
+    <port type="input" name="0"/>
+    <port type="output" name="1"/>
+  </sw_channel>
+
+  <!-- connections -->
+  <connection name="g-c">
+    <origin name="generator">
+      <port name="1"/>
+    </origin>
+    <target name="C1">
+      <port name="0"/>
+    </target>
+  </connection>
+
+  <connection name="c-c">
+    <origin name="C2">
+      <port name="1"/>
+    </origin>
+    <target name="consumer">
+      <port name="1"/>
+    </target>
+  </connection>
+
+  <connection name="s-c">
+    <origin name="square">
+      <port name="2"/>
+    </origin>
+    <target name="C2">
+      <port name="0"/>
+    </target>
+  </connection>
+
+  <connection name="c-s">
+    <origin name="C1">
+      <port name="1"/>
+    </origin>
+    <target name="square">
+      <port name="1"/>
+    </target>
+  </connection>
+
+</processnetwork>

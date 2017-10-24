@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<architecture xmlns="http://www.tik.ee.ethz.ch/~shapes/schema/ARCHITECTURE"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.tik.ee.ethz.ch/~shapes/schema/ARCHITECTURE
+                      http://www.tik.ee.ethz.ch/~shapes/schema/architecture.xsd"
+  name="SHAPES tile">
+
+  <!-- arm subsystem -->
+  <processor name="ARM" type="RISC">
+    <configuration name="memory" value="rdm"/>
+  </processor>
+  
+  <memory name="rdm" type="RAM">
+  </memory>
+
+  <hw_channel name="armbus" type="BUS">
+    <configuration name="frequency" value="100000000"/>
+    <configuration name="bytespercycle" value="1"/>
+  </hw_channel>
+  
+  <!-- magic subsystem -->
+  <processor name="MAGIC" type="DSP">
+    <configuration name="memory" value="ddm"/>
+  </processor>
+
+  <memory name="ddm" type="RAM">
+  </memory>
+
+  <hw_channel name="magicbus" type="BUS">
+    <configuration name="frequency" value="100000000"/>
+    <configuration name="bytespercycle" value="1"/>
+  </hw_channel>
+  
+  <hw_channel name="dma" type="DMA">
+    <configuration name="frequency" value="100000000"/>
+    <configuration name="bytespercycle" value="1"/>
+  </hw_channel>
+
+  <!-- distributed external memory -->
+  <memory name="dxm" type="DXM">
+  </memory>
+
+  <!-- ssc subsystem -->
+  <processor name="SSC" type="POT">
+    <configuration name="memory" value="sscreg"/>
+  </processor>
+  
+  <memory name="sscreg" type="RAM">
+  </memory>
+
+  <!-- ahb multi-layered bus -->
+  <hw_channel name="ahb0" type="BUS">
+    <configuration name="frequency" value="100000000"/>
+    <configuration name="bytespercycle" value="1"/>
+  </hw_channel>
+
+  <hw_channel name="ahb1" type="BUS">
+    <configuration name="frequency" value="100000000"/>
+    <configuration name="bytespercycle" value="1"/>
+  </hw_channel>
+
+  <hw_channel name="ahb2" type="BUS">
+    <configuration name="frequency" value="100000000"/>
+    <configuration name="bytespercycle" value="1"/>
+  </hw_channel>
+
+
+  <!-- arm paths -->
+  <writepath name="rdmdxm">
+    <processor name="ARM"/>
+    <txbuf name="rdm"/>
+    <hw_channel name="armbus"/>
+    <hw_channel name="ahb1"/>
+    <chbuf name="dxm"/>
+    <configuration name="delay" value="0"/>
+    <configuration name="cycles" value="8"/>
+  </writepath>
+  
+  <readpath name="dxmrdm">
+    <processor name="ARM"/>
+    <chbuf name="dxm"/>
+    <hw_channel name="ahb1"/>
+    <hw_channel name="armbus"/>
+    <rxbuf name="rdm"/>
+    <configuration name="delay" value="0"/>
+    <configuration name="cycles" value="11"/>
+  </readpath>
+  
+  <writepath name="rdmrdmoverarm">
+    <processor name="ARM"/>
+    <txbuf name="rdm"/>
+    <hw_channel name="armbus"/>
+    <chbuf name="rdm"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="1"/>  <!-- not confirmed -->
+  </writepath>
+  
+  <readpath name="rdmrdmoverarm">
+    <processor name="ARM"/>
+    <chbuf name="rdm"/>
+    <hw_channel name="armbus"/>
+    <rxbuf name="rdm"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="1"/>  <!-- not confirmed -->
+  </readpath>
+  
+  <writepath name="armrdmddm">
+    <processor name="ARM"/>
+    <txbuf name="rdm"/>
+    <hw_channel name="ahb0"/>
+    <hw_channel name="dma"/>
+    <chbuf name="ddm"/>
+    <configuration name="delay" value="48"/> <!-- not confirmed -->
+    <configuration name="cycles" value="1"/> <!-- not confirmed -->
+  </writepath>
+
+  <readpath name="armddmrdm">
+    <processor name="ARM"/>
+    <chbuf name="ddm"/>
+    <hw_channel name="dma"/>
+    <hw_channel name="ahb0"/>
+    <rxbuf name="rdm"/>
+    <configuration name="delay" value="48"/> <!-- not confirmed -->
+    <configuration name="cycles" value="1"/> <!-- not confirmed -->
+  </readpath>
+
+  <writepath name="dxmdxm">
+    <processor name="ARM"/>
+    <txbuf name="dxm"/>
+    <hw_channel name="ahb1"/>
+    <chbuf name="dxm"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="16"/>  <!-- not confirmed -->
+  </writepath>
+
+  <readpath name="dxmdxm">
+    <processor name="ARM"/>
+    <chbuf name="dxm"/>
+    <hw_channel name="ahb1"/>
+    <rxbuf name="dxm"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="16"/>  <!-- not confirmed -->
+  </readpath>
+
+  <writepath name="rdmrdmoverahb">
+    <processor name="ARM"/>
+    <txbuf name="rdm"/>
+    <hw_channel name="ahb0"/>
+    <chbuf name="rdm"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="2"/>  <!-- not confirmed -->
+  </writepath>
+  
+  <readpath name="rdmrdmoverahb">
+    <processor name="ARM"/>
+    <chbuf name="rdm"/>
+    <hw_channel name="ahb0"/>
+    <rxbuf name="rdm"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="2"/>  <!-- not confirmed -->
+  </readpath>
+
+  <writepath name="dxmddm">
+    <processor name="ARM"/>
+    <txbuf name="dxm"/>
+    <hw_channel name="ahb1"/>
+    <hw_channel name="dma"/>
+    <chbuf name="ddm"/>
+    <configuration name="delay" value="48"/> <!-- not confirmed -->
+    <configuration name="cycles" value="1"/>  <!-- not confirmed -->
+  </writepath>
+  
+  <readpath name="ddmdxm">
+    <processor name="ARM"/>
+    <chbuf name="ddm"/>
+    <hw_channel name="dma"/>
+    <hw_channel name="ahb1"/>
+    <rxbuf name="dxm"/>
+    <configuration name="delay" value="48"/> <!-- not confirmed -->
+    <configuration name="cycles" value="1"/>  <!-- not confirmed -->
+  </readpath>
+
+  <!-- magic paths -->
+  <writepath name="ddmdxm">
+    <processor name="MAGIC"/>
+    <txbuf name="ddm"/>
+    <hw_channel name="dma"/>
+    <hw_channel name="ahb1"/>
+    <chbuf name="dxm"/>
+    <configuration name="delay" value="8"/> <!-- not confirmed -->
+    <configuration name="cycles" value="1"/>  <!-- not confirmed -->
+  </writepath>
+  
+  <readpath name="dxmddm">
+    <processor name="MAGIC"/>
+    <chbuf name="dxm"/>
+    <hw_channel name="ahb1"/>
+    <hw_channel name="dma"/>
+    <rxbuf name="ddm"/>
+    <configuration name="delay" value="8"/> <!-- not confirmed -->
+    <configuration name="cycles" value="1"/>  <!-- not confirmed -->
+  </readpath>
+  
+  <writepath name="ddmddm">
+    <processor name="MAGIC"/>
+    <txbuf name="ddm"/>
+    <hw_channel name="magicbus"/>
+    <chbuf name="ddm"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="1"/>  <!-- not confirmed -->
+  </writepath>
+  
+  <readpath name="ddmddm">
+    <processor name="MAGIC"/>
+    <chbuf name="ddm"/>
+    <hw_channel name="magicbus"/>
+    <rxbuf name="ddm"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="1"/>  <!-- not confirmed -->
+  </readpath>
+  
+  <writepath name="magicddmrdm">
+    <processor name="MAGIC"/>
+    <txbuf name="ddm"/>
+    <hw_channel name="dma"/>
+    <hw_channel name="ahb0"/>
+    <chbuf name="rdm"/>
+    <configuration name="delay" value="16"/>
+    <configuration name="cycles" value="1"/>
+  </writepath>
+
+  <readpath name="magicrdmddm">
+    <processor name="MAGIC"/>
+    <chbuf name="rdm"/>
+    <hw_channel name="ahb0"/>
+    <hw_channel name="dma"/>
+    <rxbuf name="ddm"/>
+    <configuration name="delay" value="6"/>
+    <configuration name="cycles" value="1"/>
+  </readpath>
+
+  <!-- ssc paths -->
+  <writepath name="sscregdxm">
+    <processor name="SSC"/>
+    <txbuf name="sscreg"/>
+    <hw_channel name="ahb1"/>
+    <chbuf name="dxm"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="4"/>  <!-- not confirmed -->
+  </writepath>
+
+  <readpath name="dxmsscreg">
+    <processor name="SSC"/>
+    <chbuf name="dxm"/>
+    <hw_channel name="ahb1"/>
+    <rxbuf name="sscreg"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="4"/>  <!-- not confirmed -->
+  </readpath>
+
+  <writepath name="sscregrdm">
+    <processor name="SSC"/>
+    <txbuf name="sscreg"/>
+    <hw_channel name="ahb0"/>
+    <chbuf name="rdm"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="4"/>  <!-- not confirmed -->
+  </writepath>
+
+  <readpath name="rdmsscreg">
+    <processor name="SSC"/>
+    <chbuf name="rdm"/>
+    <hw_channel name="ahb0"/>
+    <rxbuf name="sscreg"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="4"/>  <!-- not confirmed -->
+  </readpath>
+
+  <writepath name="sscregddm">
+    <processor name="SSC"/>
+    <txbuf name="sscreg"/>
+    <hw_channel name="ahb2"/>
+    <chbuf name="ddm"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="4"/>  <!-- not confirmed -->
+  </writepath>
+
+  <readpath name="ddmsscreg">
+    <processor name="SSC"/>
+    <chbuf name="ddm"/>
+    <hw_channel name="ahb2"/>
+    <rxbuf name="sscreg"/>
+    <configuration name="delay" value="0"/> <!-- not confirmed -->
+    <configuration name="cycles" value="4"/>  <!-- not confirmed -->
+  </readpath>
+</architecture>
