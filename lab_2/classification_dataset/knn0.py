@@ -221,14 +221,14 @@ def regress0(inX,dataSet,labels,k,row):
         struct.append([distances[i],labels[i]])
     sortstruct = sorted(struct,key=lambda dis:dis[0],reverse=False)
 
-    weightCount = {}
-    sum = 0
-    for i in range(k):
-        weightCount[sortstruct[i][1]] = weightCount.get(sortstruct[i][1],0) + 1.0/sortstruct[i][0]
-    for key in weightCount:
-        sum = sum + weightCount[key]
-    for key in weightCount:
-        weightCount[key] = weightCount[key]/sum
+    # weightCount = {}
+    # sum = 0
+    # for i in range(k):
+    #     weightCount[sortstruct[i][1]] = weightCount.get(sortstruct[i][1],0) + 1.0/sortstruct[i][0]
+    # for key in weightCount:
+    #     sum = sum + weightCount[key]
+    # for key in weightCount:
+    #     weightCount[key] = weightCount[key]/sum
 
     classCount = {}
     for i in range(k):
@@ -274,7 +274,14 @@ train_tfidf = cal_tf_idf(train_text,train_word,row,train_tf)
 [valid_word,valid_label] = get_valid_data("validation_set.csv")
 for i in range(10):
     [predict,answer] = classify(train_text,train_word,row,col,label,train_tf,i)
-    cnt = compare(answer,predict)
+    cnt = compare(answer,predict)    # weightCount = {}
+    # sum = 0
+    # for i in range(k):
+    #     weightCount[sortstruct[i][1]] = weightCount.get(sortstruct[i][1],0) + 1.0/sortstruct[i][0]
+    # for key in weightCount:
+    #     sum = sum + weightCount[key]
+    # for key in weightCount:
+    #     weightCount[key] = weightCount[key]/sum
     print(cnt)
 
 # print(len(predict))
